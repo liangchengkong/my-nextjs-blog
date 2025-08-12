@@ -18,11 +18,59 @@ interface GitHubHeatmapProps {
   year: number;
 }
 
+// 缓存键生成函数
+const getCacheKey = (username: string, year: number) =>
+  `github_contributions_${username}_${year}`;
+
+// 缓存过期时间（24小时）
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
+
 const GitHubHeatmap: React.FC<GitHubHeatmapProps> = ({ username, year }) => {
   const [contributions, setContributions] = useState<ContributionDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalContributions, setTotalContributions] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  // 从本地存储获取缓存数据
+  const getCachedData = (username: string, year: number) => {
+    try {
+      const cacheKey = getCacheKey(username, year);
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        const now = Date.now();
+
+        // 检查缓存是否过期
+        if (now - timestamp < CACHE_EXPIRY) {
+          return data;
+        } else {
+          // 清除过期缓存
+          localStorage.removeItem(cacheKey);
+        }
+      }
+    } catch (error) {
+      console.error("读取缓存失败:", error);
+    }
+    return null;
+  };
+
+  // 保存数据到本地存储
+  const setCachedData = (
+    username: string,
+    year: number,
+    data: GitHubContributionsData
+  ) => {
+    try {
+      const cacheKey = getCacheKey(username, year);
+      const cacheData = {
+        data,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+    } catch (error) {
+      console.error("保存缓存失败:", error);
+    }
+  };
 
   // 使用 github-contributions-api 获取贡献数据
   const fetchContributions = async (username: string, year: number) => {
@@ -36,22 +84,15 @@ const GitHubHeatmap: React.FC<GitHubHeatmapProps> = ({ username, year }) => {
       }
 
       const data: GitHubContributionsData = await response.json();
+
+      // 保存到缓存
+      setCachedData(username, year, data);
+
       return data;
     } catch (error) {
       console.error("获取GitHub贡献数据失败:", error);
       throw error;
     }
-  };
-
-  // 过滤掉今天以后的数据
-  const filterFutureContributions = (contributions: ContributionDay[]) => {
-    const today = new Date();
-    today.setHours(23, 59, 59, 999); // 设置为今天的最后一刻
-
-    return contributions.filter((day) => {
-      const dayDate = new Date(day.date);
-      return dayDate <= today;
-    });
   };
 
   useEffect(() => {
@@ -60,15 +101,26 @@ const GitHubHeatmap: React.FC<GitHubHeatmapProps> = ({ username, year }) => {
         setLoading(true);
         setError(null);
 
-        const data = await fetchContributions(username, year);
+        // 首先尝试从缓存获取数据
+        const cachedData = getCachedData(username, year);
 
-        // 过滤掉今天以后的数据
-        const filteredContributions = filterFutureContributions(
-          data.contributions
-        );
+        if (cachedData) {
+          console.log("使用缓存数据");
+          // 过滤掉今天以后的数据
+          const filteredContributions = cachedData.contributions;
+          setContributions(filteredContributions);
+          setTotalContributions(cachedData.total[year.toString()] || 0);
+        } else {
+          console.log("从API获取数据");
+          // 缓存中没有数据，从API获取
+          const data = await fetchContributions(username, year);
 
-        setContributions(filteredContributions);
-        setTotalContributions(data.total[year.toString()] || 0);
+          // 过滤掉今天以后的数据
+          const filteredContributions = data.contributions;
+
+          setContributions(filteredContributions);
+          setTotalContributions(data.total[year.toString()] || 0);
+        }
       } catch {
         setError("获取GitHub数据失败，请检查用户名或网络连接");
         setContributions([]);
@@ -171,7 +223,7 @@ const GitHubHeatmap: React.FC<GitHubHeatmapProps> = ({ username, year }) => {
   }
 
   return (
-    <div className="bg-[rgba(0,0,0,.3)] rounded-[5px] p-[10px] text-[#fff] w-full max-w-full overflow-x-auto custom-scrollbar">
+    <div className="bg-[rgba(0,0,0,.3)] rounded-[5px] p-[10px] text-[#fff] overflow-x-auto custom-scrollbar">
       <div className="mb-[12px]">
         <h3 className="text-[16px] font-semibold mb-[1px] flex items-center gap-2">
           <SvgIcon name="github" width={20} height={20} color="#fff" />
@@ -185,18 +237,22 @@ const GitHubHeatmap: React.FC<GitHubHeatmapProps> = ({ username, year }) => {
         </p>
       </div>
 
-      <div className="relative max-w-[600px] overflow-x-auto custom-scrollbar">
+      <div className="relative">
         {/* 月份标签 */}
-        <div className="flex mb-[8px] text-[10px] text-[rgba(255,255,255,0.7)] gap-[25px] pl-[50px]">
-          {months.map((month) => {
-            const weeksInMonth = Math.ceil(weeks.length / 12);
+        <div className="flex mb-[8px] text-[10px] text-[rgba(255,255,255,0.7)] pl-[20px]">
+          {months.map((month, monthIndex) => {
+            // 计算每个月对应的周数
+            const monthWeeks = weeks.filter((week, weekIndex) => {
+              const weekDate = new Date(year, 0, 1 + weekIndex * 7);
+              return weekDate.getMonth() === monthIndex;
+            }).length;
+
             return (
               <div
                 key={month}
-                className="text-left"
+                className="text-center flex-shrink-0"
                 style={{
-                  width: `${weeksInMonth * 13}px`,
-                  minWidth: "40px",
+                  width: `${Math.max(monthWeeks * 12, 26)}px`,
                 }}
               >
                 {month}
@@ -207,7 +263,7 @@ const GitHubHeatmap: React.FC<GitHubHeatmapProps> = ({ username, year }) => {
 
         <div className="flex">
           {/* 星期标签 */}
-          <div className="flex flex-col mr-[8px] text-[10px] text-[rgba(255,255,255,0.7)]">
+          <div className="flex flex-col mr-[8px] text-[10px] text-[rgba(255,255,255,0.7)] flex-shrink-0">
             {weekdays.map((day, index) => (
               <div
                 key={day}
@@ -219,9 +275,12 @@ const GitHubHeatmap: React.FC<GitHubHeatmapProps> = ({ username, year }) => {
           </div>
 
           {/* 热力图网格 */}
-          <div className="flex gap-[2px] gap-x-[4px]">
+          <div className="flex gap-[1px] min-w-0">
             {weeks.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col gap-[2px]">
+              <div
+                key={weekIndex}
+                className="flex flex-col gap-[2px] flex-shrink-0"
+              >
                 {week.map((day, dayIndex) => (
                   <div
                     key={`${weekIndex}-${dayIndex}`}
