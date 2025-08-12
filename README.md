@@ -68,6 +68,10 @@ pnpm 版本: 8.8.0
 
   - Next.js 的入口文件。
 
+- `src\components\LoadingAnimation.tsx`
+
+  - 加载动画组件。
+
 - `src/pages/index.tsx`
 
   - 首页代码。
