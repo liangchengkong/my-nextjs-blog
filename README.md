@@ -125,6 +125,7 @@ pnpm 版本: 8.8.0
 5. 创建一个 neon 数据库(neon 官网:https://neon.com/)
 6. 配置数据库连接字符串到 vercel 的环境变量中(一般将数据库跟项目进行连接后，重新部署就可以有环境变量了)
 7. 将 DIRECT_URL 也补充到环境变量中
+8. 配置域名说明文档:https://vercel.com/docs/domains/working-with-domains/add-a-domain#ip-diff-alerts
 
 ## Prisma 连接说明
 
