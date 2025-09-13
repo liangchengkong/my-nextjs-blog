@@ -59,7 +59,7 @@ export default function Home() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const fullText = "Hello, I'm wuxian";
+  const fullText = "Hello, I'm liangchengkong";
 
   // 打字机动画效果
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function Home() {
 
   // 添加GitHub和QQ点击处理函数
   const handleGithubClick = () => {
-    window.open("https://github.com/996wuxian", "_blank");
+    window.open("https://github.com/liangchengkong", "_blank");
   };
 
   const handleQQClick = () => {
@@ -146,19 +146,19 @@ export default function Home() {
 
   const tags = [
     {
-      name: "做饭",
+      name: "团子",
     },
     {
-      name: "摄影",
+      name: "林俊杰",
     },
     {
-      name: "五哈",
+      name: "跑步",
     },
     {
       name: "美食",
     },
     {
-      name: "沧元图",
+      name: "羽毛球",
     },
     {
       name: "音乐",
@@ -167,28 +167,28 @@ export default function Home() {
       name: "蜡笔小新",
     },
     {
-      name: "英雄联盟手游",
+      name: "王者荣耀",
     },
     {
       name: "天空中的歌",
     },
     {
-      name: "鲜花",
+      name: "前端开发",
     },
     {
-      name: "枕刀歌",
+      name: "小城日常",
     },
     {
-      name: "镖人",
+      name: "日常",
     },
     {
-      name: "不良人",
+      name: "宅",
     },
     {
-      name: "不良人天罡传",
+      name: "RNB",
     },
     {
-      name: "鬼灭之刃",
+      name: "碧蓝之海",
     },
   ];
 
@@ -197,8 +197,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>首页 - wuxian&apos;s web</title>
-        <meta name="description" content="wuxian的个人网站首页" />
+        <title>首页 - liangchengkong&apos;s web</title>
+        <meta name="description" content="liangchengkong的个人网站首页" />
       </Head>
       <div className="relative">
         {/* 弹窗组件 */}
@@ -263,7 +263,7 @@ export default function Home() {
                 <div className="text-[28px] md:text-[40px] font-bold text-[#fff] text-shadow-sm">
                   <span className="inline-block">
                     {displayText.split(" ").map((word, wordIndex) => {
-                      if (word === "wuxian") {
+                      if (word === "liangchengkong") {
                         return (
                           <span
                             key={wordIndex}
@@ -293,9 +293,9 @@ export default function Home() {
                 </div>
                 <div className="text-shadow-sm text-[#fff] text-[14px] md:text-[16px]">
                   <span className="bg-gradient-to-br from-[#1b2c55] to-[#3d85a9] bg-clip-text text-transparent text-[16px] md:text-[18px]">
-                    25
+                    20
                   </span>{" "}
-                  years old (25岁)
+                  years old (20岁)
                 </div>
                 <div className="text-shadow-sm text-[#fff] text-[14px] md:text-[16px]">
                   <span className="bg-gradient-to-br from-[#1b2c55] to-[#3d85a9] bg-clip-text text-transparent text-[16px] md:text-[18px]">
@@ -339,7 +339,7 @@ export default function Home() {
                           height={20}
                           color="#fff"
                         />
-                        广州番禺区
+                        杭州钱塘区
                       </div>
                       <div className="flex items-center gap-[5px]">
                         <SvgIcon
@@ -348,7 +348,7 @@ export default function Home() {
                           height={20}
                           color="#fff"
                         />
-                        在职
+                        学生
                       </div>
                     </div>
                     <div className="bg-[rgba(0,0,0,.3)] rounded-[5px] p-[10px] text-[#fff] text-[14px] gap-[10px] flex flex-col flex-1">
@@ -359,7 +359,7 @@ export default function Home() {
                           height={20}
                           color="#fff"
                         />
-                        广西
+                        杭州
                       </div>
                       <div className="flex items-center gap-[5px]">
                         <SvgIcon
@@ -423,7 +423,7 @@ export default function Home() {
               <div className="flex flex-col gap-[10px] order-1 md:order-2 w-full md:w-auto">
                 {/* GitHub贡献热力图 */}
                 <div className="w-full overflow-x-auto">
-                  <GitHubHeatmap username="996wuxian" year={2025} />
+                  <GitHubHeatmap username="liangchengkong" year={2025} />
                 </div>
 
                 <div className="bg-[rgba(0,0,0,.3)] rounded-[5px] p-[10px] text-[#fff] text-[14px] gap-[10px] flex flex-col">
